@@ -22,7 +22,7 @@ jobs:
 
       - name: Download torrent files
         run: |
-          torrentp $TORRENT_URL --output ./downloaded_files
+          torrentp --link $TORRENT_URL --save_path ./downloaded_files
 
       - name: Upload files to Pixeldrain
         run: |
