@@ -27,6 +27,16 @@ jobs:
           mkdir -p ./torrent
           mkdir -p ./downloaded_files
 
+      - name: Create dummy file with complex filename before torrent download
+        run: |
+          echo "Dummy content" > "./downloaded_files/sample file [EZTVX.TO].txt"
+
+      - name: Upload dummy file to Pixeldrain
+        run: |
+          echo "Uploading dummy file..."
+          curl -T "./downloaded_files/sample file [test].txt" -u :$PIXELDRAIN_API_KEY https://pixeldrain.com/api/file/
+          echo "Dummy file uploaded."
+
       - name: Download torrent file if not exists
         run: |
           if [ ! -f ./torrent/file.torrent ]; then
@@ -39,11 +49,11 @@ jobs:
         run: |
           webtorrent download ./torrent/file.torrent --out ./downloaded_files --quiet
 
-      - name: Upload files to Pixeldrain
+      - name: Upload all files in downloaded_files to Pixeldrain
         run: |
           find ./downloaded_files -type f | while read -r file; do
             filename=$(basename "$file")
-            echo "Uploading $filename..."
+            echo "Uploading \"$filename\"..."
             curl -T "$file" -u :$PIXELDRAIN_API_KEY https://pixeldrain.com/api/file/
-            echo "Uploaded $filename"
+            echo "Uploaded \"$filename\""
           done
