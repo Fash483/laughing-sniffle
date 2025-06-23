@@ -34,7 +34,7 @@ jobs:
       - name: Upload dummy file to Pixeldrain
         run: |
           echo "Uploading dummy file..."
-          curl -T "./downloaded_files/sample file [test].txt" -u :$PIXELDRAIN_API_KEY https://pixeldrain.com/api/file/
+          curl -T "./downloaded_files/sample file [EZTVX.TO].txt" -u :$PIXELDRAIN_API_KEY https://pixeldrain.com/api/file/
           echo "Dummy file uploaded."
 
       - name: Download torrent file if not exists
