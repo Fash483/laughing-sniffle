@@ -10,19 +10,24 @@ jobs:
   torrent-upload:
     runs-on: ubuntu-latest
     env:
-      TORRENT_URL: 'magnet:?xt=urn:btih:27f160798a82e23608607455eb4064309c99dd63&dn=Unknown%20Serial%20Killers%20of%20America%20S01E06%20Herb%20Baumeister%20720p%20AMZN%20WEB-DL%20DDP2%200%20H%20264-RAWR%5BEZTVx.to%5D.mkv%5Beztv%5D&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fp4p.arenabg.com%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce' # Your magnet link here
-
+      TORRENT_TORRENT_URL: 'https://itorrents.org/torrent/27F160798A82E23608607455EB4064309C99DD63.torrent'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install torrentp
+      - name: Install aria2c and Python dependencies
         run: |
+          sudo apt-get update
+          sudo apt-get install -y aria2
           pip install torrentp
 
-      - name: Download torrent files
+      - name: Download torrent file via aria2c
         run: |
-          torrentp --link $TORRENT_URL --save_path ./downloaded_files
+          aria2c --dir=./torrent --out=file.torrent "$TORRENT_TORRENT_URL"
+
+      - name: Download torrent content
+        run: |
+          torrentp --file ./torrent/file.torrent --save_path ./downloaded_files
 
       - name: Upload files to Pixeldrain
         run: |
