@@ -18,14 +18,27 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget nodejs npm
           npm install -g webtorrent-cli
 
-      - name: Create directories
+      - name: Create dummy file with brackets in filename
         run: |
-          mkdir -p ./torrent
-          mkdir -p ./downloaded_files
+          mkdir -p ./dummy_files
+          echo "This is a dummy file" > "./dummy_files/My Loverr [EZTVx.to].mkv"
+
+      - name: Upload dummy file immediately after creation
+        run: |
+          file="./dummy_files/My Loverr [EZTVx.to].mkv"
+          filename=$(basename "$file")
+
+          # Escape brackets for curl -T
+          escaped_filename="$filename"
+          if [[ "$filename" == *"["* || "$filename" == *"]"* ]]; then
+            escaped_filename="${filename//\[/\\[}"
+            escaped_filename="${escaped_filename//\]/\\]}"
+          fi
+
+          echo "Uploading $filename with escaped brackets..."
+          curl -T "$file" -u :$PIXELDRAIN_API_KEY "https://pixeldrain.com/api/file/"
 
       - name: Download torrent file if not exists
         run: |
@@ -39,19 +52,15 @@ jobs:
         run: |
           webtorrent download ./torrent/file.torrent --out ./downloaded_files --quiet
 
-      - name: Upload all files to Pixeldrain (escape brackets in filenames)
+      - name: Upload all downloaded files (escape brackets during upload)
         run: |
           find ./downloaded_files -type f | while read -r file; do
             filename=$(basename "$file")
-            # Escape brackets for curl -T
-            safe_filename="$filename"
+            escaped_filename="$filename"
             if [[ "$filename" == *"["* || "$filename" == *"]"* ]]; then
-              safe_filename="${filename//\[/\\[}"
-              safe_filename="${safe_filename//\]/\\]}"
+              escaped_filename="${filename//\[/\\[}"
+              escaped_filename="${escaped_filename//\]/\\]}"
             fi
             echo "Uploading $filename..."
-            # Use curl -T with escaped filename
             curl -T "$file" -u :$PIXELDRAIN_API_KEY "https://pixeldrain.com/api/file/"
-            # Note: For demonstration, if you want to include the filename in the URL or headers, adjust accordingly.
-            # The above curl command uploads the file directly.
           done
