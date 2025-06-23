@@ -15,15 +15,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install aria2c and Python dependencies
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y aria2
+          sudo apt-get install -y wget aria2
           pip install torrentp
 
-      - name: Download torrent file via aria2c
+      - name: Download torrent file using wget
         run: |
-          aria2c --dir=./torrent --out=file.torrent "$TORRENT_TORRENT_URL"
+          wget -O ./torrent/file.torrent "$TORRENT_TORRENT_URL"
 
       - name: Download torrent content
         run: |
