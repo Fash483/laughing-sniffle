@@ -35,7 +35,7 @@ jobs:
 
       - name: Download torrent content
         run: |
-          torrentp --file ./torrent/file.torrent --save_path ./downloaded_files
+          torrentp --link ./torrent/file.torrent --save_path ./downloaded_files
 
       - name: Upload files to Pixeldrain
         run: |
