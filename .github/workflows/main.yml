@@ -1,0 +1,36 @@
+name: Torrent Download & Upload to Pixeldrain
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  torrent-upload:
+    runs-on: ubuntu-latest
+    env:
+      TORRENT_URL: 'magnet:?xt=urn:btih:27f160798a82e23608607455eb4064309c99dd63&dn=Unknown%20Serial%20Killers%20of%20America%20S01E06%20Herb%20Baumeister%20720p%20AMZN%20WEB-DL%20DDP2%200%20H%20264-RAWR%5BEZTVx.to%5D.mkv%5Beztv%5D&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fp4p.arenabg.com%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce' # Your magnet link here
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install torrentp
+        run: |
+          pip install torrentp
+
+      - name: Download torrent files
+        run: |
+          torrentp $TORRENT_URL --output ./downloaded_files
+
+      - name: Upload files to Pixeldrain
+        run: |
+          for file in ./downloaded_files/*; do
+            filename=$(basename "$file")
+            echo "Uploading $filename..."
+            response=$(curl -s -F "file=@$file" https://pixeldrain.com/api/file)
+            # Parse the response to get the download link
+            url=$(echo $response | grep -oP '(?<="download_url":")[^"]+')
+            echo "File uploaded: $url"
+          done
