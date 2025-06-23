@@ -3,7 +3,7 @@ name: Create and Upload File with Brackets
 on:
   push:
     branches:
-      - main
+      - New
 
 jobs:
   build-and-upload:
