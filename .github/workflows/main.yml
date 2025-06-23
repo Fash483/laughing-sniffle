@@ -21,9 +21,17 @@ jobs:
           sudo apt-get install -y wget aria2
           pip install torrentp
 
-      - name: Download torrent file using wget
+      - name: Create directory for torrent file
         run: |
-          wget -O ./torrent/file.torrent "$TORRENT_TORRENT_URL"
+          mkdir -p ./torrent
+
+      - name: Download torrent file if not exists
+        run: |
+          if [ ! -f ./torrent/file.torrent ]; then
+            wget -O ./torrent/file.torrent "$TORRENT_TORRENT_URL"
+          else
+            echo "Torrent file already exists, skipping download."
+          fi
 
       - name: Download torrent content
         run: |
