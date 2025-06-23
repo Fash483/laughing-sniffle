@@ -19,19 +19,10 @@ jobs:
       - name: Install dependencies
         run: |
           npm install -g webtorrent-cli
-          
-      - name: Download torrent file if not exists
-        run: |
-          if [ ! -f ./torrent/file.torrent ]; then
-            mkdir -p ./torrent
-            wget -O ./torrent/file.torrent "$TORRENT_TORRENT_URL"
-          else
-            echo "Torrent file already exists, skipping download."
-          fi
-
+        
       - name: Download torrent content with webtorrent-cli
         run: |
-          webtorrent download ./torrent/file.torrent --out ./downloaded_files
+          webtorrent download "magnet:?xt=urn:btih:86B445126B4BA01A726D5EC9484F1E4F0F0B7334&dn=SpongeBob+SquarePants+1999.S01-S15.720p.AMZN.H264.x264.AAC-Zero00%20%20%20%20%20%20%20%20&tr=udp://tracker.bittor.pw:1337/announce%20%20%20%20%20%20%20%20&tr=udp://tracker.opentrackr.org:1337/announce%20%20%20%20%20%20%20%20&tr=udp://tracker.dler.org:6969/announce%20%20%20%20%20%20%20%20&tr=udp://open.stealth.si:80/announce%20%20%20%20%20%20%20%20&tr=udp://tracker.torrent.eu.org:451/announce%20%20%20%20%20%20%20%20&tr=udp://exodus.desync.com:6969/announce%20%20%20%20%20%20%20%20&tr=udp://open.demonii.com:1337/announce" --out ./downloaded_files
 
       - name: Upload all downloaded files (recursive)
         run: |
