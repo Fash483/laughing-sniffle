@@ -11,15 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TORRENT_TORRENT_URL: 'https://itorrents.org/torrent/27F160798A82E23608607455EB4064309C99DD63.torrent'
-      PIXELDRAIN_API_KEY: '8ec6f000-e8d1-403d-820b-4324a6a68869'  # Replace with your actual key
+      PIXELDRAIN_API_KEY: 'your-api-key-here'  # Replace with your actual key
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget nodejs npm
           npm install -g webtorrent-cli
 
       - name: Create directories
@@ -29,12 +27,12 @@ jobs:
 
       - name: Create dummy file with complex filename before torrent download
         run: |
-          echo "Dummy content" > "./downloaded_files/sample file [EZTVX.TO].txt"
+          echo "Dummy content" > "./downloaded_files/sample file test.txt"
 
       - name: Upload dummy file to Pixeldrain
         run: |
           echo "Uploading dummy file..."
-          curl -T "./downloaded_files/sample file [EZTVX.TO].txt" -u :$PIXELDRAIN_API_KEY https://pixeldrain.com/api/file/
+          curl -T "./downloaded_files/sample file test.txt" -u :$PIXELDRAIN_API_KEY https://pixeldrain.com/api/file/
           echo "Dummy file uploaded."
 
       - name: Download torrent file if not exists
@@ -53,7 +51,9 @@ jobs:
         run: |
           find ./downloaded_files -type f | while read -r file; do
             filename=$(basename "$file")
-            echo "Uploading \"$filename\"..."
+            # Remove surrounding quotes from filename if present
+            sanitized_filename=$(echo "$filename" | sed 's/^"\|"$//g')
+            echo "Uploading \"$sanitized_filename\"..."
             curl -T "$file" -u :$PIXELDRAIN_API_KEY https://pixeldrain.com/api/file/
-            echo "Uploaded \"$filename\""
+            echo "Uploaded \"$sanitized_filename\""
           done
