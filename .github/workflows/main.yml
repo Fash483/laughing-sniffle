@@ -1,66 +1,21 @@
-name: Torrent Download & Upload to Pixeldrain
+name: Create and Upload File with Brackets
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
-  torrent-upload:
+  build-and-upload:
     runs-on: ubuntu-latest
-    env:
-      TORRENT_TORRENT_URL: 'https://itorrents.org/torrent/27F160798A82E23608607455EB4064309C99DD63.torrent'
-      PIXELDRAIN_API_KEY: '8ec6f000-e8d1-403d-820b-4324a6a68869'  # Replace with your actual API key
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-      - name: Install dependencies
+      - name: Create file with brackets in name
         run: |
-          npm install -g webtorrent-cli
+          echo "This is a test file" > hsjsks\[EZTVx.to\].mkv
 
-      - name: Create dummy file with brackets in filename
+      - name: Upload file with backslashes escaped
         run: |
-          mkdir -p ./dummy_files
-          echo "This is a dummy file" > "./dummy_files/My Loverr [EZTVx.to].mkv"
-
-      - name: Upload dummy file immediately after creation
-        run: |
-          file="./dummy_files/My Loverr [EZTVx.to].mkv"
-          filename=$(basename "$file")
-
-          # Escape brackets for curl -T
-          escaped_filename="$filename"
-          if [[ "$filename" == *"["* || "$filename" == *"]"* ]]; then
-            escaped_filename="${filename//\[/\\[}"
-            escaped_filename="${escaped_filename//\]/\\]}"
-          fi
-
-          echo "Uploading $filename with escaped brackets..."
-          curl -T "$file" -u :$PIXELDRAIN_API_KEY "https://pixeldrain.com/api/file/"
-
-      - name: Download torrent file if not exists
-        run: |
-          if [ ! -f ./torrent/file.torrent ]; then
-            wget -O ./torrent/file.torrent "$TORRENT_TORRENT_URL"
-          else
-            echo "Torrent file already exists, skipping download."
-          fi
-
-      - name: Download torrent content with webtorrent-cli
-        run: |
-          webtorrent download ./torrent/file.torrent --out ./downloaded_files --quiet
-
-      - name: Upload all downloaded files (escape brackets during upload)
-        run: |
-          find ./downloaded_files -type f | while read -r file; do
-            filename=$(basename "$file")
-            escaped_filename="$filename"
-            if [[ "$filename" == *"["* || "$filename" == *"]"* ]]; then
-              escaped_filename="${filename//\[/\\[}"
-              escaped_filename="${escaped_filename//\]/\\]}"
-            fi
-            echo "Uploading $filename..."
-            curl -T "$file" -u :$PIXELDRAIN_API_KEY "https://pixeldrain.com/api/file/"
-          done
+          curl -T hsjsks\\[EZTVx.to\\].mkv -u :8ec6f000-e8d1-403d-820b-4324a6a68869 https://pixeldrain.com/api/file/
