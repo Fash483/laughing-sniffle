@@ -18,12 +18,13 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget aria2
-          pip install torrentp
+          sudo apt-get install -y wget nodejs npm
+          npm install -g webtorrent-cli
 
       - name: Create directory for torrent file
         run: |
           mkdir -p ./torrent
+          mkdir -p ./downloaded_files
 
       - name: Download torrent file if not exists
         run: |
@@ -33,9 +34,9 @@ jobs:
             echo "Torrent file already exists, skipping download."
           fi
 
-      - name: Download torrent content
+      - name: Download torrent content with webtorrent-cli
         run: |
-          torrentp --link ./torrent/file.torrent --save_path ./downloaded_files
+          webtorrent download ./torrent/file.torrent --out ./downloaded_files --quiet
 
       - name: Upload files to Pixeldrain
         run: |
