@@ -10,7 +10,6 @@ jobs:
   torrent-upload:
     runs-on: ubuntu-latest
     env:
-      TORRENT_TORRENT_URL: 'https://itorrents.org/torrent/86B445126B4BA01A726D5EC9484F1E4F0F0B7334.torrent%3Ca%20href='
       PIXELDRAIN_API_KEY: '8ec6f000-e8d1-403d-820b-4324a6a68869'  # Replace with your actual API key
     steps:
       - name: Checkout
@@ -22,7 +21,7 @@ jobs:
         
       - name: Download torrent content with webtorrent-cli
         run: |
-          webtorrent download "magnet:?xt=urn:btih:83061505b96cbeb1dae138004984a170d21601e6&dn=Its%20the%20Great%20Pumpkin%20Charlie%20Brown%201966%201080p%20BluRay%20x264-OFT&tr=udp://tracker.bittor.pw:1337/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://tracker.dler.org:6969/announce&tr=udp://open.stealth.si:80/announce&tr=udp://tracker.torrent.eu.org:451/announce&tr=udp://exodus.desync.com:6969/announce&tr=udp://open.demonii.com:1337/announce" "magnet:?xt=urn:btih:6f7b19e4f655d4c036ad819ca5ce694422f23944&dn=Crime.Scene.Investigators.S01E10.1080p.WEB.h264-BAE%5BEZTVx.to%5D.mkv%5Beztv%5D&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fp4p.arenabg.com%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce" --out ./downloaded_files
+          webtorrent download "magnet:?xt=urn:btih:08336DFDAC413EAD7E21E43361F518261F1E5B43&dn=Hush.Hush.Sweet.Charlotte.1964.1080p.BluRay.x264-OFT&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fp4p.arenabg.com%3A1337%2Fannounce&tr=udp%3A%2F%2Fopen.demonii.com%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.cyberia.is%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.dler.org%3A6969%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2710%2Fannounce&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.open-internet.nl%3A6969%2Fannounce&tr=udp%3A%2F%2Fopen.demonii.si%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.pirateparty.gr%3A6969%2Fannounce&tr=udp%3A%2F%2Fdenis.stalker.upeer.me%3A6969%2Fannounce" --out ./downloaded_files
 
       - name: Upload all downloaded files (recursive)
         run: |
