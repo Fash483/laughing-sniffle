@@ -1,37 +1,95 @@
 version: 2.1
 
 jobs:
+  build:
+    docker:
+      - image: cimg/node:18.17
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: npm install
+      - run:
+          name: Build project
+          command: npm run build
+
   download_and_upload:
     docker:
       - image: cimg/node:18.17
-    environment:
-      TORRENT_MAGNET: "magnet:?xt=urn:btih:8F86D38E13D6D295477E3EBF05494A030333637A&dn=Ke+X.+Space-Time+Coding+Theory+in+Optical+Wireless+MIMO+Systems+2025&tr=udp://tracker.bittor.pw:1337/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://tracker.dler.org:6969/announce&tr=udp://open.stealth.si:80/announce&tr=udp://tracker.torrent.eu.org:451/announce&tr=udp://exodus.desync.com:6969/announce&tr=udp://open.demonii.com:1337/announce"
-      PIXELDRAIN_API_KEY: "8ec6f000-e8d1-403d-820b-4324a6a68869"  # replace or use project env var
     steps:
       - checkout
-
       - run:
           name: Install dependencies
           command: |
             npm install webtorrent-cli
-
+            sudo apt-get install -y python3
+            pip install b2sdk
       - run:
           name: Download torrent
           command: |
-            mkdir -p downloads
-            npx webtorrent download "magnet:?xt=urn:btih:E2360B5BEB494200AF4FEE826CD8C66C668B9864&dn=Invader+ZIM+%282001%29+Season+1-2+S01-02+Specials+%281080p+DVD+AI+UPSACLE+x265+HEVC+10bit+DD+2.0+EDGE2020%29&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A6969&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=http%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&tr=udp%3A%2F%2Fopentracker.i2p.rocks%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.internetwarriors.net%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969%2Fannounce&tr=udp%3A%2F%2Fcoppersurfer.tk%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.zer0day.to%3A1337%2Fannounce" --out ./downloads --quiet
-
+            npx webtorrent download "magnet:?xt=urn:btih:362fc02c9bdc4b5f2d0fc1f90b34671afa813dbc&dn=Stalked%20by%20My%20Amish%20Boyfriend%202024%201080p%20AMZN%20WEB-DL%20DDP2%200%20H%20264-ZdS&tr=udp://tracker.bittor.pw:1337/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://tracker.dler.org:6969/announce&tr=udp://open.stealth.si:80/announce&tr=udp://tracker.torrent.eu.org:451/announce&tr=udp://exodus.desync.com:6969/announce&tr=udp://open.demonii.com:1337/announce" --out ./downloads
       - run:
-          name: Upload files to PixelDrain
+          name: Create and execute Python upload script
           command: |
-            find ./downloads -type f | while read -r FILE; do
-              echo "Uploading $FILE..."
-              curl -T "$FILE" -u :$PIXELDRAIN_API_KEY https://pixeldrain.com/api/file/
-            done
+            cat <<'EOF' > upload_files.py
+            import os
+            import concurrent.futures
+            from b2sdk.v2 import InMemoryAccountInfo, B2Api
+
+            # Backblaze B2 credentials - set as environment variables in CircleCI project settings
+            B2_ACCOUNT_ID = os.environ.get('Justine_account')
+            B2_APPLICATION_KEY = os.environ.get('Justine_secret')
+            B2_BUCKET_NAME = os.environ.get('Justine_bucket')
+
+            if not all([B2_ACCOUNT_ID, B2_APPLICATION_KEY, B2_BUCKET_NAME]):
+                raise ValueError("Missing Backblaze B2 credentials in environment variables")
+
+            info = InMemoryAccountInfo()
+            b2_api = B2Api(info)
+            b2_api.authorize_account("production", B2_ACCOUNT_ID, B2_APPLICATION_KEY)
+            bucket = b2_api.get_bucket_by_name(B2_BUCKET_NAME)
+
+            BASE_DIR = 'downloads'
+
+            def get_all_files(base_dir):
+                file_paths = []
+                for root, dirs, files in os.walk(base_dir):
+                    for file in files:
+                        full_path = os.path.join(root, file)
+                        file_paths.append(full_path)
+                return file_paths
+
+            def upload_file(file_path):
+                relative_path = os.path.relpath(file_path, BASE_DIR).replace(os.sep, '/')
+                print(f"Starting upload: {relative_path}")
+                try:
+                    bucket.upload_local_file(local_file=file_path, file_name=relative_path)
+                    print(f"Finished upload: {relative_path}")
+                    return relative_path, "Success"
+                except Exception as e:
+                    print(f"Error uploading {relative_path}: {e}")
+                    return relative_path, f"Failed: {e}"
+
+            def main():
+                files = get_all_files(BASE_DIR)
+                print(f"Found {len(files)} files to upload.")
+
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    futures = [executor.submit(upload_file, file) for file in files]
+                    for future in concurrent.futures.as_completed(futures):
+                        filename, status = future.result()
+                        print(f"Upload result for {filename}: {status}")
+
+            if __name__ == "__main__":
+                main()
+            EOF
+      - run:
+          name: Run the upload script
+          command: python upload_files.py
 
 workflows:
   version: 2
-  download_and_upload_workflow:
+  upload_workflow:
     jobs:
+      - build
       - download_and_upload
-
