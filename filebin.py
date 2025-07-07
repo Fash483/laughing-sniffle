@@ -4,7 +4,7 @@ import concurrent.futures
 
 # Define the directory containing the files and the URL
 directory = 'downloads'  # Folder containing files to upload
-url_template = 'https://filebin.net/xx4gwonx76ay0bxu/{filename}'  # Use a placeholder for filename
+url_template = 'https://filebin.net/wrjtapwqd8l93y8u/{filename}'  # Use a placeholder for filename
 
 # Function to upload a single file
 def upload_file(file_path):
