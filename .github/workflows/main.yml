@@ -25,7 +25,7 @@ jobs:
 
       - name: Run your koofr upload
         run: |
-          find "$DIRECTORY" -type f | while read -r file; do
+          find downloads -type f | while read -r file; do
           echo "Uploading: $file"
           curl -g -u "giannabutre@gmail.com:aaepqb2adm7zflpw" -X POST -F "file=@\"$file\"" "https://app.koofr.net/content/api/v2/mounts/d4d6204e-6513-4ee1-afbf-fbb99fe87f02/files/put?path=/&info=true" | jq
           done
