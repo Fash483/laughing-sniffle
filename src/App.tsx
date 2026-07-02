@@ -362,6 +362,11 @@ export default function App() {
     pushToast("Sorted by season + episode");
   }
 
+  function handleSortById() {
+    setAllLinks((prev) => [...prev].sort((a, b) => Number(a.id) - Number(b.id)));
+    pushToast("Sorted by ID");
+  }
+
   function handleDedupe() {
     const ignorePhrase = dedupeIgnore.trim().toLowerCase();
     const score = (item: Link) => {
@@ -609,6 +614,7 @@ export default function App() {
         <div className="action-bar">
           <button className={`btn${copyAllPrimary ? " btn-primary" : ""}`} disabled={syncing} onClick={handleCopyAll}><I.Copy />{copyAllLabel}</button>
           <button className="btn" disabled={syncing} onClick={handleSort}><I.Sort />Sort by Episode</button>
+          <button className="btn" disabled={syncing} onClick={handleSortById}><I.Sort />Sort by ID</button>
           <button className="btn" disabled={syncing} onClick={handleDedupe}><I.Dedupe />{dedupeLabel}</button>
           <button className="btn" disabled={syncing} onClick={handleExactDedupe}><I.Exact />{exactLabel}</button>
           <button className="btn" disabled={syncing} onClick={fetchLinks}><I.Sync spin={syncing} />Sync</button>
@@ -756,4 +762,4 @@ export default function App() {
       )}
     </>
   );
-}
+                                                                                                                                                                        }
